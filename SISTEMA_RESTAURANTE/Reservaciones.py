@@ -6,30 +6,28 @@ Created on Sun May  3 17:51:08 2026
 """
 import json, string, random
 from datetime import datetime, timedelta
+from Interfaz import colores, ilustracion
 
 
-mesas = [ {"id": 1,"capacidad": 2, "Fecha": "","Hora_Ent": "","Hora_Sal": "","Duración": "","Codigo": ""},\
-          {"id": 2,"capacidad": 2, "Fecha": "","Hora_Ent": "","Hora_Sal": "","Duración": "","Codigo": ""},\
-             {"id": 3,"capacidad": 2, "Fecha": "","Hora_Ent": "","Hora_Sal": "","Duración": "","Codigo": ""},\
-                {"id": 4,"capacidad": 4, "Fecha": "","Hora_Ent": "","Hora_Sal": "","Duración": "","Codigo": ""},\
-                    {"id": 5,"capacidad": 4, "Fecha": "","Hora_Ent": "","Hora_Sal": "","Duración": "","Codigo": ""},\
-                        {"id": 6,"capacidad": 2, "Fecha": "","Hora_Ent": "","Hora_Sal": "","Duración": "","Codigo": ""},\
-                            {"id": 7,"capacidad": 2, "Fecha": "","Hora_Ent": "","Hora_Sal": "","Duración": "","Codigo": ""},\
-                                {"id": 8,"capacidad": 4, "Fecha": "","Hora_Ent": "","Hora_Sal": "","Duración": "","Codigo": ""},\
-                                {"id": 9,"capacidad": 4, "Fecha": "","Hora_Ent": "","Hora_Sal": "","Duración": "","Codigo": ""},\
-                                {"id": 10,"capacidad": 2, "Fecha": "","Hora_Ent": "","Hora_Sal": "","Duración": "","Codigo": ""}
-                                    ]
-
-try:
-
- with open("registro.json", "r") as rg:
-     load = json.load(rg)
-except(json.JSONDecodeError, FileNotFoundError):
-    load=[]
+mesas = [
+    {"id": 1, "capacidad": 2, "Fecha": "", "Hora_Ent": "", "Hora_Sal": "", "Duración": "", "Codigo": ""},
+    {"id": 2, "capacidad": 2, "Fecha": "", "Hora_Ent": "", "Hora_Sal": "", "Duración": "", "Codigo": ""},
+    {"id": 3, "capacidad": 2, "Fecha": "", "Hora_Ent": "", "Hora_Sal": "", "Duración": "", "Codigo": ""},
+    {"id": 4, "capacidad": 4, "Fecha": "", "Hora_Ent": "", "Hora_Sal": "", "Duración": "", "Codigo": ""},
+    {"id": 5, "capacidad": 4, "Fecha": "", "Hora_Ent": "", "Hora_Sal": "", "Duración": "", "Codigo": ""},
+    {"id": 6, "capacidad": 2, "Fecha": "", "Hora_Ent": "", "Hora_Sal": "", "Duración": "", "Codigo": ""},
+    {"id": 7, "capacidad": 2, "Fecha": "", "Hora_Ent": "", "Hora_Sal": "", "Duración": "", "Codigo": ""},
+    {"id": 8, "capacidad": 4, "Fecha": "", "Hora_Ent": "", "Hora_Sal": "", "Duración": "", "Codigo": ""},
+    {"id": 9, "capacidad": 4, "Fecha": "", "Hora_Ent": "", "Hora_Sal": "", "Duración": "", "Codigo": ""},
+    {"id": 10, "capacidad": 2, "Fecha": "", "Hora_Ent": "", "Hora_Sal": "", "Duración": "", "Codigo": ""}
+]
 
 
+with open("registro.json", "r") as rg:
+    load = json.load(rg)
 
 Reservaciones = load.copy()
+
 
 #Cantidad de reservas
 Cant_reserv = len(Reservaciones)
@@ -45,7 +43,7 @@ def liberar_mesas():
     Reser_Pas_H = []
     if Cant_reserv != 0:
 
-        for i in range(Cant_reserv):
+        for i in range(len(Reservaciones)):
             if ((Reservaciones[i]["Fecha"] <= dia_actual) == True):
                 Reser_Pas_D.append(Reservaciones[i])
         for i in range(len(Reser_Pas_D)):
@@ -59,10 +57,12 @@ def liberar_mesas():
     
         return Reservaciones
 
-def mostrar_mesas_disponibles():
 
-    liberar_mesas()
+
+def mostrar_mesas_disponibles():
     
+    liberar_mesas()
+
     fechaocupada = []
     horaocupada = []
     disponibles = mesas.copy()
@@ -78,7 +78,6 @@ def mostrar_mesas_disponibles():
             if fecha_valida < datetime.now():
                 print("Solo reservaciones despues de la fecha actual. Intenta de nuevo.")
                 continue
-
             break
         except ValueError:
             print("Formato inválido. Usa AAAA-MM-DD.")
@@ -96,13 +95,17 @@ def mostrar_mesas_disponibles():
     
         try:
             hora_llegada = datetime.strptime(hora_str, "%H:%M")
+
+            if (hora_llegada < datetime.strptime("08:00", "%H:%M")) or (hora_llegada > datetime.strptime("22:00", "%H:%M")):
+                print("Solo puedes reservar entre las 08:00 y las 22:00. Intenta de nuevo.")
+                continue
             break
         except ValueError:
             print("Formato de hora inválido.")
-    
+
     for i in range(len(fechaocupada)):
 
-        HoraOcp = (fechaocupada[i]["Hora_Ent"] == hora_str)
+        HoraOcp = ( fechaocupada[i]["Hora_Ent"] < hora_str < fechaocupada[i]["Hora_Sal"] ) 
         if HoraOcp == True:
             horaocupada.append(fechaocupada[i])
             
@@ -118,8 +121,23 @@ def mostrar_mesas_disponibles():
         print("No hay mesas disponibles en este momento.")
         return [], fecha, hora_str
     
+    RED, GREEN, YELLOW, RESET = colores()
+
+    
+    color = [YELLOW, RED, RED, RED, RED, RED, RED, RED, RED, RED, RED]
+
+    for i in range(len(disponibles)):
+        mesa = disponibles[i]["id"]
+        color[mesa] = GREEN
+        
+    ilustracion(color)
+
+    print("Verde: Disponible, Rojo: Ocupada, Amarillo: Barra libre\n")
+    
     for i in range(len(disponibles)):
         print(f"Mesa {disponibles[i]['id']} - Capacidad: {disponibles[i]['capacidad']} personas")
+
+        
 
     return disponibles, fecha_valida, hora_str, hora_llegada
 
@@ -145,32 +163,32 @@ def hacer_reservacion():
             print("Ingresar numeros enteros")
 
     disponibles, fecha_valida, hora_str, hora_llegada = mostrar_mesas_disponibles()
-    disponibles_2 = disponibles.copy()    
+
     while True:
         try:
            id_elegida = int(input("\n¿Qué número de mesa deseas? "))
 
-           if id_elegida not in [mesa["id"] for mesa in disponibles_2]:
+           if id_elegida not in [mesa["id"] for mesa in disponibles]:
 
                print("Número de mesa no válido. Intenta de nuevo.\n")  
 
                print("\n--- Mesas disponibles ---")
 
-               for i in range(len(disponibles_2)):
-                  print(f"Mesa {disponibles_2[i]['id']} - Capacidad: {disponibles_2[i]['capacidad']} personas")            
+               for i in range(len(disponibles)):
+                  print(f"Mesa {disponibles[i]['id']} - Capacidad: {disponibles[i]['capacidad']} personas")            
                continue
         except ValueError:
             print("Número de mesa no válido. Intenta de nuevo.")
             return
 
-        for i in range(len(disponibles_2)):
-            mesa = (disponibles_2[i]["id"] == id_elegida)
+        for i in range(len(disponibles)):
+            mesa = (disponibles[i]["id"] == id_elegida)
             if mesa == True:
-                reserva.append(disponibles_2[i])
+                reserva.append(disponibles[i])
        
-        for i in range(len(disponibles_2)):
-            if disponibles_2[i]["id"] == id_elegida:
-                asientos = disponibles_2[i]["capacidad"]
+        for i in range(len(disponibles)):
+            if disponibles[i]["id"] == id_elegida:
+                asientos = disponibles[i]["capacidad"]
 
         for i in range(len(reserva)):
             reserva[i]["Fecha"]    = str(fecha_valida.strftime("%Y-%m-%d"))
@@ -187,10 +205,10 @@ def hacer_reservacion():
         print("Selecciona una mesa más")
 
         
-        disponibles_2 = [mesa for mesa in disponibles_2 if mesa["id"] != id_elegida]
+        disponibles = [mesa for mesa in disponibles if mesa["id"] != id_elegida]
 
-        for i in range(len(disponibles_2)):
-          print(f"Mesa {disponibles_2[i]['id']} - Capacidad: {disponibles_2[i]['capacidad']} personas")
+        for i in range(len(disponibles)):
+          print(f"Mesa {disponibles[i]['id']} - Capacidad: {disponibles[i]['capacidad']} personas")
     
 
     # Duración fija de la reservación: 2 horas
@@ -248,10 +266,12 @@ def cancelar_reservación():
     return Reservaciones
 
 
-
-
 def menu():
     while True:
+
+        global Cant_reserv
+        Cant_reserv = len(Reservaciones)
+
         print("\n=== Sistema de Reservaciones ===")
         print("1. Hacer reservación")
         print("2. Ver mesas disponibles")
@@ -274,5 +294,3 @@ def menu():
             
 if __name__ == "__main__":
     menu()
-
-
