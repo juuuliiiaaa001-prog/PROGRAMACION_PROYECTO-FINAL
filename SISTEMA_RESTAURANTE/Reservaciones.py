@@ -6,17 +6,20 @@ Created on Sun May  3 17:51:08 2026
 """
 import json, string, random
 from datetime import datetime, timedelta
+from Interfaz import colores, ilustracion
 
-mesas = [ {"id": 1,"capacidad": 2, "Fecha": "","Hora_Ent": "","Hora_Sal": "","Duración": "","Codigo": ""},\
-          {"id": 2,"capacidad": 2, "Fecha": "","Hora_Ent": "","Hora_Sal": "","Duración": "","Codigo": ""},\
-             {"id": 3,"capacidad": 2, "Fecha": "","Hora_Ent": "","Hora_Sal": "","Duración": "","Codigo": ""},\
-                {"id": 4,"capacidad": 4, "Fecha": "","Hora_Ent": "","Hora_Sal": "","Duración": "","Codigo": ""},\
-                    {"id": 5,"capacidad": 4, "Fecha": "","Hora_Ent": "","Hora_Sal": "","Duración": "","Codigo": ""},\
-                        {"id": 6,"capacidad": 2, "Fecha": "","Hora_Ent": "","Hora_Sal": "","Duración": "","Codigo": ""},\
-                            {"id": 7,"capacidad": 2, "Fecha": "","Hora_Ent": "","Hora_Sal": "","Duración": "","Codigo": ""},\
-                                {"id": 8,"capacidad": 4, "Fecha": "","Hora_Ent": "","Hora_Sal": "","Duración": "","Codigo": ""},\
-                                {"id": 9,"capacidad": 4, "Fecha": "","Hora_Ent": "","Hora_Sal": "","Duración": "","Codigo": ""},\
-                                {"id": 10,"capacidad": 2, "Fecha": "","Hora_Ent": "","Hora_Sal": "","Duración": "","Codigo": ""}
+mesas = [ 
+    {"id": 1,"capacidad": 2, "Fecha": "","Hora_Ent": "","Hora_Sal": "","Duración": "","Codigo": ""},
+          {"id": 2,"capacidad": 2, "Fecha": "","Hora_Ent": "","Hora_Sal": "","Duración": "","Codigo": ""},
+             {"id": 3,"capacidad": 2, "Fecha": "","Hora_Ent": "","Hora_Sal": "","Duración": "","Codigo": ""},
+                {"id": 4,"capacidad": 4, "Fecha": "","Hora_Ent": "","Hora_Sal": "","Duración": "","Codigo": ""},
+                    {"id": 5,"capacidad": 4, "Fecha": "","Hora_Ent": "","Hora_Sal": "","Duración": "","Codigo": ""},
+                        {"id": 6,"capacidad": 2, "Fecha": "","Hora_Ent": "","Hora_Sal": "","Duración": "","Codigo": ""},
+                            {"id": 7,"capacidad": 2, "Fecha": "","Hora_Ent": "","Hora_Sal": "","Duración": "","Codigo": ""},
+                                {"id": 8,"capacidad": 4, "Fecha": "","Hora_Ent": "","Hora_Sal": "","Duración": "","Codigo": ""},
+                                {"id": 9,"capacidad": 4, "Fecha": "","Hora_Ent": "","Hora_Sal": "","Duración": "","Codigo": ""},
+                                {"id": 10,"capacidad": 2, "Fecha": "","Hora_Ent": "","Hora_Sal": "","Duración": "","Codigo": ""},
+                                  {"id": 11,"capacidad": 8, "Fecha": "","Hora_Ent": "","Hora_Sal": "","Duración": "","Codigo": ""}
                                     ]
 
 try:
@@ -33,10 +36,35 @@ Reservaciones = load.copy()
 #Cantidad de reservas
 Cant_reserv = len(Reservaciones)
 
+def liberar_mesas():
+
+    global Reservaciones
+
+    dia_actual = datetime.now().strftime("%Y-%m-%d")
+    hora_actual = datetime.now().strftime("%H:%M")
+
+    Reser_Pas_D = []
+    Reser_Pas_H = []
+    if Cant_reserv != 0:
+
+        for i in range(Cant_reserv):
+            if ((Reservaciones[i]["Fecha"] <= dia_actual) == True):
+                Reser_Pas_D.append(Reservaciones[i])
+        for i in range(len(Reser_Pas_D)):
+            if (Reser_Pas_D[i]["Hora_Ent"] < hora_actual):
+                Reser_Pas_H.append(Reser_Pas_D[i])
+    
+        for i in range(len(Reser_Pas_H)):
+
+            ReserPas = Reser_Pas_H[i]["Hora_Ent"]
+            Reservaciones = [reser for reser in Reservaciones if reser["Hora_Ent"] >= ReserPas ]
+    
+        return Reservaciones
 
 def mostrar_mesas_disponibles():
     
-    
+    liberar_mesas()
+
     fechaocupada = []
     horaocupada = []
     disponibles = mesas.copy()
@@ -90,6 +118,17 @@ def mostrar_mesas_disponibles():
     
     for i in range(len(disponibles)):
         print(f"Mesa {disponibles[i]['id']} - Capacidad: {disponibles[i]['capacidad']} personas")
+
+    RED, GREEN, YELLOW, RESET = colores()
+
+    a, color = ilustracion()
+
+    for i in range(len(disponibles)):
+        mesa = disponibles[i]["id"]
+        color.replace(mesa, GREEN)
+        
+    print(a)
+    print("Verde: Disponible, Rojo: Ocupada, Amarillo: Barra libre")
 
     return disponibles, fecha_valida, hora_str, hora_llegada
 
@@ -184,33 +223,32 @@ def hacer_reservacion():
 
     reserva.clear()
 
+def cancelar_reservación():
 
-def liberar_mesas(hora_actual_str):
-    try:
-        hora_actual = datetime.strptime(hora_actual_str, "%H:%M")
-    except ValueError:
-        print("Formato inválido.")
-        return
+    global Reservaciones
 
-    liberadas = 0
-    for reservacion in Reservaciones:
-        hora_salida = datetime.strptime(reservacion["hora_salida"], "%H:%M")
-        if hora_actual >= hora_salida:
-            mesa = next((m for m in mesas if m["id"] == reservacion["mesa_id"]), None)
-            if mesa and not mesa["disponible"]:
-                mesa["disponible"] = True
-                liberadas += 1
-                print(f"Mesa {mesa['id']} liberada.")
+    print("Hola buenas")
+    Deseo = input("¿Deseas cancelar tu reservación?\n").lower()
+    if Deseo == "si":
+        Codigo = input("¿Cuál es tu codigo de acceso?\n").upper()
+        for i in range(Cant_reserv):
+          
+         Reservaciones = [reser for reser in Reservaciones if reser["Codigo"] != Codigo]
+    
+    with open("registro.json", "w") as rg:
+        json.dump(Reservaciones, rg)
 
-    if liberadas == 0:
-        print("No hay mesas que liberar a esta hora.")
+    print("Reservación cancelada")
+
+    return Reservaciones
+
 
 def menu():
     while True:
         print("\n=== Sistema de Reservaciones ===")
         print("1. Hacer reservación")
         print("2. Ver mesas disponibles")
-        print("3. Liberar mesas (por hora actual)")
+        print("3. Cancelar reservación")
         print("4. Salir")
 
         opcion = input("\nElige una opción: ")
@@ -220,8 +258,7 @@ def menu():
         elif opcion == "2":
             mostrar_mesas_disponibles()
         elif opcion == "3":
-            hora = input("¿Cuál es la hora actual? (HH:MM): ")
-            liberar_mesas(hora)
+            cancelar_reservación()
         elif opcion == "4":
             print("¡Hasta luego!")
             break
@@ -230,4 +267,3 @@ def menu():
             
 if __name__ == "__main__":
     menu()
-
