@@ -10,6 +10,7 @@ def ilustracion(color):
 
     RED, GREEN, YELLOW, RESET = colores()
 
+
     a = f'''
     _______________________________
     |      {color[0]}o|______11_____|o {RESET}     |   
@@ -27,9 +28,9 @@ def ilustracion(color):
     |___________|_____|___________|
     '''
 
-    color = [YELLOW, RED, RED, RED, RED, RED, RED, RED, RED, RED, RED]
-
+    
     print(a)
 
-    return a, color
+    return a
     
+
