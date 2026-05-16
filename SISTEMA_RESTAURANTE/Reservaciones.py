@@ -77,6 +77,8 @@ def mostrar_mesas_disponibles():
         try:
             fecha_valida = datetime.strptime(fecha, "%Y-%m-%d")
 
+            
+
             break
         except ValueError:
             print("Formato inválido. Usa AAAA-MM-DD.")
