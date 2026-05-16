@@ -22,7 +22,6 @@ mesas = [
     {"id": 10, "capacidad": 2, "Fecha": "", "Hora_Ent": "", "Hora_Sal": "", "Duración": "", "Codigo": ""}
 ]
 
-
 with open("registro.json", "r") as rg:
     load = json.load(rg)
 
@@ -96,7 +95,7 @@ def mostrar_mesas_disponibles():
         try:
             hora_llegada = datetime.strptime(hora_str, "%H:%M")
 
-            if (hora_llegada < datetime.strptime("08:00", "%H:%M")) or (hora_llegada > datetime.strptime("22:00", "%H:%M")):
+            if (hora_llegada <= datetime.strptime("08:00", "%H:%M")) or (hora_llegada >= datetime.strptime("22:00", "%H:%M")):
                 print("Solo puedes reservar entre las 08:00 y las 22:00. Intenta de nuevo.")
                 continue
             break
@@ -105,7 +104,7 @@ def mostrar_mesas_disponibles():
 
     for i in range(len(fechaocupada)):
 
-        HoraOcp = ( fechaocupada[i]["Hora_Ent"] < hora_str < fechaocupada[i]["Hora_Sal"] ) 
+        HoraOcp = ( fechaocupada[i]["Hora_Ent"] <= hora_str <= fechaocupada[i]["Hora_Sal"] ) 
         if HoraOcp == True:
             horaocupada.append(fechaocupada[i])
             
@@ -133,7 +132,9 @@ def mostrar_mesas_disponibles():
     ilustracion(color)
 
     print("Verde: Disponible, Rojo: Ocupada, Amarillo: Barra libre\n")
-    
+    for i in range(1,10):
+        color[i] = RED
+
     for i in range(len(disponibles)):
         print(f"Mesa {disponibles[i]['id']} - Capacidad: {disponibles[i]['capacidad']} personas")
 
@@ -174,6 +175,21 @@ def hacer_reservacion():
 
                print("\n--- Mesas disponibles ---")
 
+               RED, GREEN, YELLOW, RESET = colores()
+
+    
+               color = [YELLOW, RED, RED, RED, RED, RED, RED, RED, RED, RED, RED]
+
+               for i in range(len(disponibles)):
+                   mesa = disponibles[i]["id"]
+                   color[mesa] = GREEN
+        
+                   ilustracion(color)
+
+               print("Verde: Disponible, Rojo: Ocupada, Amarillo: Barra libre\n")
+               for i in range(1,10):
+                   color[i] = RED
+
                for i in range(len(disponibles)):
                   print(f"Mesa {disponibles[i]['id']} - Capacidad: {disponibles[i]['capacidad']} personas")            
                continue
@@ -203,6 +219,21 @@ def hacer_reservacion():
         
         print(f"Cantidad de personas sin asiento {num_personas}")
         print("Selecciona una mesa más")
+
+        RED, GREEN, YELLOW, RESET = colores()
+
+    
+        color = [YELLOW, RED, RED, RED, RED, RED, RED, RED, RED, RED, RED]
+
+        for i in range(len(disponibles)):
+          mesa = disponibles[i]["id"]
+          color[mesa] = GREEN
+        
+        ilustracion(color)
+
+        print("Verde: Disponible, Rojo: Ocupada, Amarillo: Barra libre\n")
+        for i in range(1,10):
+          color[i] = RED
 
         
         disponibles = [mesa for mesa in disponibles if mesa["id"] != id_elegida]
